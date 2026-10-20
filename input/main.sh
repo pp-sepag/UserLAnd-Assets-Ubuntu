@@ -11,22 +11,25 @@ echo "export LIBGL_ALWAYS_SOFTWARE=1" >> /etc/profile.d/userland.sh
 chmod +x /etc/profile.d/userland.sh
 
 #update our repos so we can install some packages
+. /etc/os-release
+UBUNTU_CODENAME="$VERSION_CODENAME"
 if [[ $1 = *"arm"* ]]; then
-   echo "deb http://ports.ubuntu.com/ubuntu-ports bionic main restricted universe multiverse" > /etc/apt/sources.list
-   echo "deb http://ports.ubuntu.com/ubuntu-ports bionic-security main restricted universe multiverse" >> /etc/apt/sources.list
-   echo "deb http://ports.ubuntu.com/ubuntu-ports bionic-updates main restricted universe multiverse" >> /etc/apt/sources.list
-   echo "deb http://ports.ubuntu.com/ubuntu-ports bionic-backports main restricted universe multiverse" >> /etc/apt/sources.list
+   MIRROR="http://ports.ubuntu.com/ubuntu-ports"
 else
-   echo "deb http://archive.ubuntu.com/ubuntu bionic main restricted universe multiverse" > /etc/apt/sources.list
-   echo "deb http://archive.ubuntu.com/ubuntu bionic-security main restricted universe multiverse" >> /etc/apt/sources.list
-   echo "deb http://archive.ubuntu.com/ubuntu bionic-updates main restricted universe multiverse" >> /etc/apt/sources.list
-   echo "deb http://archive.ubuntu.com/ubuntu bionic-backports main restricted universe multiverse" >> /etc/apt/sources.list
+   MIRROR="http://archive.ubuntu.com/ubuntu"
+fi
+#noble and later ship their sources in deb822 format already
+if [ ! -f /etc/apt/sources.list.d/ubuntu.sources ]; then
+   echo "deb $MIRROR $UBUNTU_CODENAME main restricted universe multiverse" > /etc/apt/sources.list
+   echo "deb $MIRROR $UBUNTU_CODENAME-security main restricted universe multiverse" >> /etc/apt/sources.list
+   echo "deb $MIRROR $UBUNTU_CODENAME-updates main restricted universe multiverse" >> /etc/apt/sources.list
+   echo "deb $MIRROR $UBUNTU_CODENAME-backports main restricted universe multiverse" >> /etc/apt/sources.list
 fi
 apt-get update
 
 #install some packages with need for UserLAnd
 export DEBIAN_FRONTEND=noninteractive
-apt-get install -y --no-install-recommends sudo dropbear libgl1-mesa-glx tightvncserver xterm xfonts-base twm openbox expect
+apt-get install -y --no-install-recommends sudo dropbear libgl1 libglx-mesa0 tightvncserver xterm xfonts-base twm openbox expect
 
 #Install OpenJDK-8 and other useful tools
 taskset 0x1 apt -y install iputils-ping vim wget cabextract openssh-client fontconfig openjdk-8-jre
