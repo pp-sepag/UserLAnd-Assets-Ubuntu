@@ -12,7 +12,7 @@ chmod +x /etc/profile.d/userland.sh
 
 #update our repos so we can install some packages
 . /etc/os-release
-UBUNTU_CODENAME="$VERSION_CODENAME"
+UBUNTU_CODENAME="${UBUNTU_CODENAME:-$VERSION_CODENAME}"
 if [[ $1 = *"arm"* ]]; then
    MIRROR="http://ports.ubuntu.com/ubuntu-ports"
 else
